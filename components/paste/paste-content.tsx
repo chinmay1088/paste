@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import ReactMarkdown from 'react-markdown';
+import { renderContent } from '@/lib/content-renderer';
 import PasswordPrompt from '@/components/password-prompt';
 import { Lock } from 'lucide-react';
 
@@ -36,60 +34,8 @@ export default function PasteContent({ paste, isOwner, onUnlock }: PasteContentP
     onUnlock?.(); // Notify parent that paste is unlocked
   };
 
-  const renderContent = () => {
-    switch (paste.format) {
-      case 'markdown':
-        return (
-          <div className="prose prose-invert prose-sm max-w-none">
-            <ReactMarkdown
-              components={{
-                code: ({ className, children, ...props }) => (
-                  <code
-                    className={`${className} bg-white/10 px-1 py-0.5 rounded text-sm font-mono`}
-                    {...props}
-                  >
-                    {children}
-                  </code>
-                ),
-                pre: ({ children }) => (
-                  <pre className="bg-white/5 border border-white/10 rounded-lg p-4 overflow-x-auto">
-                    {children}
-                  </pre>
-                ),
-              }}
-            >
-              {paste.content}
-            </ReactMarkdown>
-          </div>
-        );
-
-      case 'javascript':
-      case 'typescript':
-      case 'python':
-      case 'json':
-        return (
-          <SyntaxHighlighter
-            language={paste.format === 'typescript' ? 'tsx' : paste.format}
-            style={oneDark}
-            customStyle={{
-              background: 'transparent',
-              padding: '0',
-              margin: '0',
-              fontSize: '14px',
-            }}
-            wrapLongLines={true}
-          >
-            {paste.content}
-          </SyntaxHighlighter>
-        );
-
-      default:
-        return (
-          <pre className="text-sm text-white/90 font-mono whitespace-pre-wrap break-words">
-            {paste.content}
-          </pre>
-        );
-    }
+  const renderContentComponent = () => {
+    return renderContent(paste.content, paste.format);
   };
 
   if (paste.password && !isUnlocked && !isOwner) {
@@ -124,7 +70,7 @@ export default function PasteContent({ paste, isOwner, onUnlock }: PasteContentP
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-6 overflow-auto">
-      {renderContent()}
+      {renderContentComponent()}
     </div>
   );
 }

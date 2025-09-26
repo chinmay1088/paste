@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Paste",
+  title: "paste",
   description: "pastebin with ai",
 };
 

@@ -11,9 +11,7 @@ import { Upload, Code, FileText, Copy, Share, User, LogOut, Lock, Sparkles, Gith
 import { createClient } from '@/utils/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import AIEnhance from '@/components/ai-enhance';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import ReactMarkdown from 'react-markdown';
+import { renderContent } from '@/lib/content-renderer';
 
 const formatOptions = [
   { label: 'Plain Text', value: 'text', Icon: <FileText className="h-4 w-4" /> },
@@ -99,88 +97,7 @@ export default function Home() {
 
   const renderFormattedContent = () => {
     if (!pasteContent) return null;
-
-    switch (selectedFormat) {
-      case 'markdown':
-        return (
-          <div className="prose prose-invert prose-sm max-w-none">
-            <ReactMarkdown
-              components={{
-                // Custom styling for markdown elements
-                h1: ({ children }) => <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-xl font-bold text-white mb-3">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-lg font-bold text-white mb-2">{children}</h3>,
-                p: ({ children }) => <p className="text-white/90 mb-2">{children}</p>,
-                strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
-                em: ({ children }) => <em className="italic text-white/90">{children}</em>,
-                ul: ({ children }) => <ul className="list-disc list-inside text-white/90 mb-2">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal list-inside text-white/90 mb-2">{children}</ol>,
-                li: ({ children }) => <li className="mb-1">{children}</li>,
-                blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/80 mb-2">
-                    {children}
-                  </blockquote>
-                ),
-                code: ({ children }) => (
-                  <code className="bg-white/10 px-1 py-0.5 rounded text-sm font-mono text-white">
-                    {children}
-                  </code>
-                ),
-                pre: ({ children }) => (
-                  <pre className="bg-white/10 p-3 rounded-lg overflow-x-auto mb-2">
-                    {children}
-                  </pre>
-                ),
-                table: ({ children }) => (
-                  <table className="border-collapse border border-white/20 mb-2">
-                    {children}
-                  </table>
-                ),
-                th: ({ children }) => (
-                  <th className="border border-white/20 px-2 py-1 bg-white/10 font-bold text-white">
-                    {children}
-                  </th>
-                ),
-                td: ({ children }) => (
-                  <td className="border border-white/20 px-2 py-1 text-white/90">
-                    {children}
-                  </td>
-                ),
-              }}
-            >
-              {pasteContent}
-            </ReactMarkdown>
-          </div>
-        );
-
-      case 'javascript':
-      case 'typescript':
-      case 'python':
-      case 'json':
-        return (
-          <SyntaxHighlighter
-            language={selectedFormat === 'typescript' ? 'tsx' : selectedFormat}
-            style={oneDark}
-            customStyle={{
-              background: 'transparent',
-              padding: '0',
-              margin: '0',
-              fontSize: '14px',
-            }}
-            wrapLongLines={true}
-          >
-            {pasteContent}
-          </SyntaxHighlighter>
-        );
-
-      case 'text':
-      default:
-        return (
-          <pre className="text-sm text-white/90 font-mono whitespace-pre-wrap break-words">
-            {pasteContent}
-          </pre>
-        );
-    }
+    return renderContent(pasteContent, selectedFormat);
   };
 
   const handlePaste = async () => {
